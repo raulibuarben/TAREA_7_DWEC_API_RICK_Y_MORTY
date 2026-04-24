@@ -13,6 +13,7 @@
   const filtroNombre = ref('');
   const filtroEstado = ref('');
   const filtroEspecie = ref('');
+  const personajeSeleccionado = ref(null);
 
   //Comunicación asíncrona
   const obtenerPersonajes = async (nombre = filtroNombre.value, estado = filtroEstado.value, especie = filtroEspecie.value) => {
