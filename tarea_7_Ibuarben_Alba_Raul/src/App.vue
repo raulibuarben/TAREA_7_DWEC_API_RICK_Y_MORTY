@@ -10,29 +10,37 @@
   const personajes = ref([]);
   const cargando = ref (false);
   const error = ref(null);
+  const filtroNombre = ref('');
+  const filtroEstado = ref('');
+  const filtroEspecie = ref('');
 
   //Comunicación asíncrona
-  const obtenerPersonajes = async (nombre = '', estado = '', especie = '') => {
+  const obtenerPersonajes = async (nombre = filtroNombre.value, estado = filtroEstado.value, especie = filtroEspecie.value) => {
+    // Actualizamos los valores guardados
+    filtroNombre.value = nombre;
+    filtroEstado.value = estado;
+    filtroEspecie.value = especie;
+
     cargando.value = true;
     error.value = null;
 
     try {
-      const respuesta = await fetch(`https://rickandmortyapi.com/api/character/?name=${nombre}&status=${estado}&species=${especie}`);
+      // La URL ahora siempre lleva los 3 valores actualizados
+      const url = `https://rickandmortyapi.com/api/character/?name=${filtroNombre.value}&status=${filtroEstado.value}&species=${filtroEspecie.value}`;
+      const respuesta = await fetch(url);
       
       if (!respuesta.ok) {
-        if (respuesta.status === 404) throw new Error("Sin resultados"); // Estado sin resultados
-        throw new Error("Fallo al conectar con la API"); // Estado de error 
+        if (respuesta.status === 404) throw new Error("Sin resultados");
+        throw new Error("Fallo en la API");
       }
 
-      const datos = await respuesta.json(); // Uso de response.json()
-      
-      personajes.value = datos.results; 
-      
+      const datos = await respuesta.json();
+      personajes.value = datos.results;
     } catch (err) {
       error.value = err.message;
       personajes.value = [];
     } finally {
-      cargando.value = false; // Gestión del estado de carga [cite: 28]
+      cargando.value = false;
     }
   };
   // Llamada inicial para mostrar datos al empezar
@@ -49,8 +57,9 @@
     <h1>Rick & Morty API</h1>
 
     <div class="herramientas" v-if="!personajeSeleccionado">
-      <buscador @buscar="obtenerPersonajes" />
-      <filtros @filtrar="obtenerPersonajes" />
+      <buscador @buscar="(val) => obtenerPersonajes(val, filtroEstado, filtroEspecie)" />
+      
+      <filtros @filtrar="(f) => obtenerPersonajes(filtroNombre, f.estado, f.especie)" />
     </div>
 
     <div v-if="cargando" class="mensaje">Cargando datos de la galaxia...</div>
