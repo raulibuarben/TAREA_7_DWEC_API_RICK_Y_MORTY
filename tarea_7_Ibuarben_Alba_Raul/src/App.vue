@@ -43,6 +43,7 @@
     personajeSeleccionado.value = p;
   };
 </script>
+
 <template>
   <div class="container">
     <h1>Rick & Morty API</h1>
